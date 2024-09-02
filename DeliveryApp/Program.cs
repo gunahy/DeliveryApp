@@ -15,7 +15,7 @@ namespace DeliveryApp
 
         public string Address
         {
-            get { _address; }
+            get { return _address; }
 
             //Использование инкапсуляции: защищенные модификаторы protected set для управление полями внутри классов-потомков
             protected set
@@ -131,6 +131,20 @@ namespace DeliveryApp
             Console.WriteLine($"Описание: {Description}");
             Console.WriteLine($"Заказчик: {Customer.Name}, Email: {Customer.Email}");
             Delivery.Deliver();
+            Console.WriteLine();
+        }
+
+        // Метод для обновления номера заказа
+        public void UpdateOrderNumber(int newNumber)
+        {
+            if (newNumber > 0)
+            {
+                Number = newNumber;
+            }
+            else
+            {
+                Console.WriteLine("Order number must be positive.");
+            }
         }
     }
 
@@ -158,7 +172,7 @@ namespace DeliveryApp
         // Индексатор для доступа к заказам по индексу
         public Order<TDelivery> this[int index]
         {
-            get { orders[index]; }
+            get { return orders[index]; }
             set { orders[index] = value; }
         }
 
@@ -181,7 +195,7 @@ namespace DeliveryApp
         private string _email;
         public string Email
         {
-            get { _email; }
+            get { return _email; }
             set
             {
                 if (IsValidEmail(value))
@@ -244,18 +258,20 @@ namespace DeliveryApp
             var customer2 = new Customer("Вовка", "vladimir.p@nomail.com");
             var customer3 = new Customer("Алиса", "alice@nomail.com");
 
+            Console.WriteLine("Сравниваем покупателей 1 и 3");
             Console.WriteLine(customer1 == customer3);
+            Console.WriteLine("Сравниваем покупателей 1 и 2");
             Console.WriteLine(customer1 == customer2);
 
             var homeDelivery = new HomeDelivery("ул. Ленина 1а", "Иван Пушкин");
-            var order1 = new Order<HomeDelivery>(1, homeDelivery, "iPhone 15", customer1);
+            var order1 = new Order<Delivery>(1, homeDelivery, "iPhone 15", customer1);
 
-            var pickPointDelivery = new PickPointDelivery("ул. Республики 240", "Пункт выдачи Ozon", "980456", customer2);
-            var order2 = new Order<PickPointDelivery>(2, pickPointDelivery, "Мешок картошки");
+            var pickPointDelivery = new PickPointDelivery("ул. Республики 240", "Пункт выдачи Ozon", "980456");
+            var order2 = new Order<Delivery>(2, pickPointDelivery, "Мешок картошки", customer2);
 
             var shop = new Shop("Эльдорадо", "Торговый центр 'Березка'");
             var shopDelivery = new ShopDelivery("ул. Гагарина", shop);
-            var order3 = new Order<ShopDelivery>(3, shopDelivery, "Папуаское копьё", customer3);
+            var order3 = new Order<Delivery>(1, shopDelivery, "Папуаское копьё", customer3);
 
             var orders = new OrderCollection<Delivery>();
             orders.AddOrder(order1);
@@ -263,15 +279,20 @@ namespace DeliveryApp
             orders.AddOrder(order3);
 
             order1.DisplayOrderDetails();
-            Console.WriteLine();
             order2.DisplayOrderDetails();
-            Console.WriteLine();
             order3.DisplayOrderDetails();
 
             // Использование методов расширения
-            order1.ChangeDescription("Замена цвета на черный титан");
-            string areOrdersSame = order1.IsSameOrder(order2)? "да" : "нет";
+            order1.ChangeDescription("Папуаское копьё цвета черный титан");
+            order1.DisplayOrderDetails();
+
+            bool areOrdersSame = order1.IsSameOrder(order3);
             Console.WriteLine($"Сравниваем заказы. Они одинаковые? - {areOrdersSame}");
+            Console.WriteLine();
+            order3.UpdateOrderNumber(3);
+            areOrdersSame = order1.IsSameOrder(order3);
+            Console.WriteLine($"Еще раз сравниваем заказы. Они одинаковые? - {areOrdersSame}");
+            Console.WriteLine();
 
             // Использование индексаторов
             var retrievedOrder = orders[1];
@@ -279,7 +300,9 @@ namespace DeliveryApp
 
             // Подсчет заказов с использованием статического метода
             int orderCount = OrderCollection<Delivery>.CountOrders(orders);
-            Console.WriteLine($"Total orders: {orderCount}");
+            Console.WriteLine($"Всего заказов: {orderCount}");
+
+            Console.ReadKey();
 
 
         }
